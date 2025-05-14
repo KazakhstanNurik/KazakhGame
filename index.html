@@ -1,186 +1,225 @@
-<!-- Бұл интерактивті тест-ойын HTML, CSS және JavaScript арқылы жазылған -->
-<!DOCTYPE html>
-<html lang="kk">
+  <!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Сұрақ ойыны</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #ff4444;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    .container {
-      padding: 20px;
-    }
-    .question {
-      margin-bottom: 10px;
-    }
-    .answer-input {
-      display: flex;
-      gap: 10px;
-    }
-    .answer-input input {
-      flex: 1;
-    }
-    .quiz-card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .button {
-      background: #ff4444;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .stakan-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    .stakan {
-      width: 100px;
-      height: 150px;
-      background-color: red;
-      border: 5px solid white;
-      border-radius: 10px 10px 0 0;
-      position: relative;
-      animation: rotate-slow 2s infinite linear;
-    }
-    .shar {
-      width: 30px;
-      height: 30px;
-      background-color: gray;
-      border-radius: 50%;
-      position: absolute;
-      bottom: -15px;
-      left: 35px;
-    }
-    @keyframes rotate-slow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .question-setup input {
+            width: 200px;
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .game-play {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .answer-button {
+            width: 100px;
+            padding: 10px;
+            margin: 5px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .answer-button:hover {
+            background-color: #c0392b;
+        }
+
+        #cups {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .cup {
+            padding: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.5s;
+        }
+
+        .cup:hover {
+            background-color: #c0392b;
+        }
+
+        #finish-game {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Создатель: Марат Нұрсұлтан</h1>
-  </header>
-
-  <div class="container">
-    <div id="quiz-builder">
-      <h2>Сұрақ құрастыру</h2>
-      <div id="question-list"></div>
-      <button class="button" onclick="addQuestion()">+ Вопрос</button>
-      <button class="button" onclick="startQuiz()">Создать</button>
-    </div>
-
-    <div id="quiz-area" style="display: none;">
-      <div id="quiz-question"></div>
-      <div id="answers"></div>
-    </div>
-
-    <div id="animation-area" style="display: none;">
-      <h3 id="current-question-info"></h3>
-      <div class="stakan-container">
-        <div class="stakan"><div class="shar"></div></div>
-        <div class="stakan"><div class="shar"></div></div>
-        <div class="stakan"><div class="shar"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let questions = [];
-    let currentQuestionIndex = 0;
-
-    function addQuestion() {
-      if (questions.length >= 5) return alert("Максимум 5 сұрақ!");
-      const qId = `q${questions.length}`;
-      document.getElementById("question-list").insertAdjacentHTML("beforeend", `
-        <div class="quiz-card" id="${qId}">
-          <input placeholder="Сұрақ жазыңыз..." id="question-${qId}" /><br/><br/>
-          <div class="answer-input">
-            <input placeholder="а) Жауап" id="a-${qId}" />
-            <input placeholder="в) Жауап" id="b-${qId}" />
-            <input placeholder="с) Жауап" id="c-${qId}" />
-          </div>
-          <br/>
-          <label>Дұрыс жауапты таңдаңыз:</label>
-          <select id="correct-${qId}">
-            <option value="a">а</option>
-            <option value="b">в</option>
-            <option value="c">с</option>
-          </select>
+    <div class="game-container">
+        <h1>Quiz Game</h1>
+        
+        <div class="question-setup">
+            <label for="question">Сұрақты жазыңыз:</label>
+            <input type="text" id="question" placeholder="Сұрақ жазу">
+            
+            <div class="answers-setup">
+                <label for="answer1">Жауап 1:</label>
+                <input type="text" id="answer1">
+                <label for="answer2">Жауап 2:</label>
+                <input type="text" id="answer2">
+                <label for="answer3">Жауап 3:</label>
+                <input type="text" id="answer3">
+            </div>
+            
+            <button id="add-question" onclick="addQuestion()">+ сұрақ қосу</button>
+            <button id="start-game" onclick="startGame()">Ойынды бастау</button>
+            <p id="creator">Создатель: Марат Нұрсұлтан</p>
         </div>
-      `);
-    }
 
-    function startQuiz() {
-      questions = [];
-      document.querySelectorAll(".quiz-card").forEach((card, i) => {
-        const id = `q${i}`;
-        const q = document.getElementById(`question-${id}`).value;
-        const a = document.getElementById(`a-${id}`).value;
-        const b = document.getElementById(`b-${id}`).value;
-        const c = document.getElementById(`c-${id}`).value;
-        const correct = document.getElementById(`correct-${id}`).value;
+        <div class="game-play">
+            <div id="question-display"></div>
+            <div id="answers-display">
+                <button class="answer-button" onclick="selectAnswer(1)">Жауап 1</button>
+                <button class="answer-button" onclick="selectAnswer(2)">Жауап 2</button>
+                <button class="answer-button" onclick="selectAnswer(3)">Жауап 3</button>
+            </div>
+            <div id="cups">
+                <div class="cup">Стакан 1</div>
+                <div class="cup">Стакан 2</div>
+                <div class="cup">Стакан 3</div>
+            </div>
+            <button id="finish-game" onclick="endGame()">Ойын аяқтау</button>
+        </div>
+    </div>
+    
+    <script>
+        let questions = []; // Сұрақтар мен жауаптар массиві
+        let currentQuestionIndex = 0; // Қазіргі сұрақтың индексі
+        let correctAnswers = 0; // Дұрыс жауаптар саны
+        let gameStarted = false; // Ойын басталды ма?
 
-        questions.push({ q, options: { a, b, c }, correct });
-      });
-      document.getElementById("quiz-builder").style.display = "none";
-      document.getElementById("quiz-area").style.display = "block";
-      loadQuestion();
-    }
+        function addQuestion() {
+            const questionText = document.getElementById('question').value;
+            const answer1 = document.getElementById('answer1').value;
+            const answer2 = document.getElementById('answer2').value;
+            const answer3 = document.getElementById('answer3').value;
 
-    function loadQuestion() {
-      const q = questions[currentQuestionIndex];
-      document.getElementById("quiz-question").innerText = q.q;
-      const answersEl = document.getElementById("answers");
-      answersEl.innerHTML = "";
-      ["a","b","c"].forEach(letter => {
-        answersEl.insertAdjacentHTML("beforeend", `
-          <button class="button" onclick="selectAnswer('${letter}')">${letter.toUpperCase()}) ${q.options[letter]}</button>
-        `);
-      });
-    }
+            if (questionText && answer1 && answer2 && answer3) {
+                questions.push({
+                    question: questionText,
+                    answers: [answer1, answer2, answer3],
+                    correctAnswer: 1 // Дұрыс жауаптың индексін анықтау
+                });
 
-    function selectAnswer(choice) {
-      document.getElementById("quiz-area").style.display = "none";
-      document.getElementById("animation-area").style.display = "block";
-      document.getElementById("current-question-info").innerText = `Сұрақ ${currentQuestionIndex+1}`;
-      setTimeout(() => {
-        const correct = questions[currentQuestionIndex].correct;
-        const message = choice === correct ? "Дұрыс!" : `Неправильно! Дұрыс жауап: ${questions[currentQuestionIndex].options[correct]}`;
-        alert(message);
-        currentQuestionIndex++;
-        if (currentQuestionIndex < questions.length) {
-          document.getElementById("animation-area").style.display = "none";
-          document.getElementById("quiz-area").style.display = "block";
-          loadQuestion();
-        } else {
-          alert("Тест аяқталды!");
-          location.reload();
+                alert('Сұрақ қосылды!');
+                document.getElementById('question').value = '';
+                document.getElementById('answer1').value = '';
+                document.getElementById('answer2').value = '';
+                document.getElementById('answer3').value = '';
+            } else {
+                alert('Барлық деректерді енгізіңіз!');
+            }
         }
-      }, 3000);
-    }
-  </script>
+
+        function startGame() {
+            if (questions.length === 0) {
+                alert('Сұрақтар жоқ! Алдымен сұрақтарды қосыңыз.');
+                return;
+            }
+
+            document.querySelector('.question-setup').style.display = 'none';
+            document.querySelector('.game-play').style.display = 'block';
+            gameStarted = true;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const currentQuestion = questions[currentQuestionIndex];
+                document.getElementById('question-display').textContent = currentQuestion.question;
+
+                const answers = currentQuestion.answers;
+                const buttons = document.querySelectorAll('.answer-button');
+                buttons.forEach((button, index) => {
+                    button.textContent = answers[index];
+                });
+            }
+        }
+
+        function selectAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+
+            if (selectedIndex === currentQuestion.correctAnswer) {
+                correctAnswers++;
+                alert('Дұрыс жауап!');
+            } else {
+                alert('Қате жауап!');
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                alert('Ойын аяқталды!');
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.querySelector('.game-play').style.display = 'none';
+            alert(`Ойын аяқталды! Дұрыс жауаптар: ${correctAnswers} / ${questions.length}`);
+            resetGame();
+        }
+
+        function resetGame() {
+            correctAnswers = 0;
+            currentQuestionIndex = 0;
+            gameStarted = false;
+            document.querySelector('.question-setup').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
-
-
-{"query":"HTML CSS JS quiz game with cups animation, difficulty mode, question creator, GitHub deploy"}
